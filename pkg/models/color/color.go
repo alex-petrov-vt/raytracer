@@ -1,5 +1,7 @@
 package color
 
+import "github.com/alex-petrov-vt/raytracer/pkg/util"
+
 // Color is a struct that represents a color in an RGB format
 type Color struct {
 	Red, Green, Blue float64
@@ -30,4 +32,9 @@ func (c *Color) Scale(s float64) {
 // Multiply computes Hadamard (or Schur) product of two colors
 func Multiply(c1, c2 *Color) *Color {
 	return &Color{c1.Red * c2.Red, c1.Green * c2.Green, c1.Blue * c2.Blue}
+}
+
+func Equals(c1, c2 *Color) bool {
+	return util.AlmostEqual(c1.Red, c2.Red) && util.AlmostEqual(c1.Green, c2.Green) &&
+		util.AlmostEqual(c1.Blue, c2.Blue)
 }
