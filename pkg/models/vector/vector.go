@@ -54,7 +54,8 @@ func (t *Tuple) IsVector() bool {
 
 // Equals compares two tuples for equality
 func Equals(t1, t2 *Tuple) bool {
-	return t1.X == t2.X && t1.Y == t2.Y && t1.Z == t2.Z && t1.W == t2.W
+	return util.AlmostEqual(t1.X, t2.X) && util.AlmostEqual(t1.Y, t2.Y) &&
+		util.AlmostEqual(t1.Z, t2.Z) && util.AlmostEqual(t1.W, t2.W)
 }
 
 // Add adds two tuples together and returns the resulting tuple
