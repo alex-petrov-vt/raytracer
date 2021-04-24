@@ -1,20 +1,27 @@
-package util_test
+package util
 
 import (
 	"testing"
-
-	"github.com/alex-petrov-vt/raytracer/pkg/util"
-	"github.com/stretchr/testify/assert"
 )
 
-func TestAlmostEqual(t *testing.T) {
-	assert.True(t, util.AlmostEqual((1.0+2.0), 3.0))
-	assert.True(t, util.AlmostEqual((1.0*2.0), 2.0))
-	assert.True(t, util.AlmostEqual((1.0+2.0), 3))
-	assert.True(t, util.AlmostEqual((0.05*0.05), 0.0025))
-	assert.True(t, util.AlmostEqual((0.005*0.005), 0.000025))
-	assert.True(t, util.AlmostEqual((1234.5*6789.0), 8381020.5))
-	assert.False(t, util.AlmostEqual((1234.5*6789.0), 8381020.6))
-	assert.False(t, util.AlmostEqual((1.0+2.0), 3.0001))
-	assert.False(t, util.AlmostEqual((0.005*0.005), 0.000026))
+func TestFloatEquals(t *testing.T) {
+	tests := map[string]struct {
+		input1 float64
+		input2 float64
+		want   bool
+	}{
+		"simple":                  {input1: (1.0 + 2.0), input2: 3.0, want: true},
+		"zero":                    {input1: (3.153 - 3.153), input2: 0, want: true},
+		"equal small numbers":     {input1: (0.005 * 0.005), input2: 0.000025, want: true},
+		"not equal small numbers": {input1: (0.005 * 0.005), input2: 0.000026, want: false},
+		"equal big numbers":       {input1: (1234.5 * 6789.0), input2: 8381020.5, want: true},
+		"not equal big numbers":   {input1: (1234.5 * 6789.0), input2: 8381020.6, want: false},
+	}
+
+	for name, tc := range tests {
+		got := FloatEquals(tc.input1, tc.input2)
+		if got != tc.want {
+			t.Fatalf("%s: expected: %v, got %v", name, tc.want, got)
+		}
+	}
 }
