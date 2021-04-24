@@ -1,157 +1,161 @@
-package vector_test
+package vector
 
 import (
+	"errors"
 	"math"
 	"testing"
 
-	"github.com/alex-petrov-vt/raytracer/pkg/models/vector"
 	"github.com/alex-petrov-vt/raytracer/pkg/util"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPointTuple(t *testing.T) {
-	tup := vector.NewTuple(4.3, -4.2, 3.1, 1.0)
-
-	assert.True(t, util.AlmostEqual(tup.X, 4.3))
-	assert.True(t, util.AlmostEqual(tup.Y, -4.2))
-	assert.True(t, util.AlmostEqual(tup.Z, 3.1))
-	assert.True(t, util.AlmostEqual(tup.W, 1.0))
-	assert.True(t, tup.IsPoint())
-	assert.False(t, tup.IsVector())
-}
-
-func TestVectorTuple(t *testing.T) {
-	tup := vector.NewTuple(4.3, -4.2, 3.1, 0.0)
-
-	assert.True(t, util.AlmostEqual(tup.X, 4.3))
-	assert.True(t, util.AlmostEqual(tup.Y, -4.2))
-	assert.True(t, util.AlmostEqual(tup.Z, 3.1))
-	assert.True(t, util.AlmostEqual(tup.W, 0.0))
-	assert.False(t, tup.IsPoint())
-	assert.True(t, tup.IsVector())
-}
-
 func TestNewPoint(t *testing.T) {
-	p := vector.NewPoint(4, -4, 3)
+	vec := NewPoint(4.3, -4.2, 3.1)
 
-	assert.True(t, util.AlmostEqual(p.X, 4))
-	assert.True(t, util.AlmostEqual(p.Y, -4))
-	assert.True(t, util.AlmostEqual(p.Z, 3))
-	assert.True(t, util.AlmostEqual(p.W, 1.0))
-	assert.True(t, p.IsPoint())
-	assert.False(t, p.IsVector())
+	assert.True(t, util.FloatEquals(vec.X, 4.3))
+	assert.True(t, util.FloatEquals(vec.Y, -4.2))
+	assert.True(t, util.FloatEquals(vec.Z, 3.1))
+	assert.True(t, util.FloatEquals(vec.W, 1.0))
+	assert.True(t, IsPoint(vec))
+	assert.False(t, IsVector(vec))
 }
 
 func TestNewVector(t *testing.T) {
-	p := vector.NewVector(4, -4, 3)
+	vec := NewVector(4.3, -4.2, 3.1)
 
-	assert.True(t, util.AlmostEqual(p.X, 4))
-	assert.True(t, util.AlmostEqual(p.Y, -4))
-	assert.True(t, util.AlmostEqual(p.Z, 3))
-	assert.True(t, util.AlmostEqual(p.W, 0.0))
-	assert.False(t, p.IsPoint())
-	assert.True(t, p.IsVector())
+	assert.True(t, util.FloatEquals(vec.X, 4.3))
+	assert.True(t, util.FloatEquals(vec.Y, -4.2))
+	assert.True(t, util.FloatEquals(vec.Z, 3.1))
+	assert.True(t, util.FloatEquals(vec.W, 0.0))
+	assert.False(t, IsPoint(vec))
+	assert.True(t, IsVector(vec))
 }
 
-func TestEquals(t *testing.T) {
-	t1 := vector.NewTuple(1, 2, 3, 0)
-	t2 := vector.NewTuple(1, 2, 3, 0)
-	t3 := vector.NewTuple(1, 2, 3, 1)
-	t4 := vector.NewTuple(1.1, 2, 3, 0)
-	assert.True(t, vector.Equals(t1, t2))
-	assert.False(t, vector.Equals(t1, t3))
-	assert.False(t, vector.Equals(t1, t4))
+func TestVectorEquals(v *testing.T) {
+	v1 := NewVector(1, 2, 3)
+	v2 := NewVector(1, 2, 3)
+	v3 := NewVector(1.1, 2, -3)
+	assert.True(v, Equals(v1, v2))
+	assert.False(v, Equals(v1, v3))
 }
 
 func TestAdd(t *testing.T) {
-	t1 := vector.NewTuple(3, -2, 5, 1)
-	t2 := vector.NewTuple(-2, 3, 1, 0)
-	t3 := vector.Add(t1, t2)
-	assert.True(t, vector.Equals(t3, vector.NewTuple(1, 1, 6, 1)))
+	v1 := NewPoint(3, -2, 5)
+	v2 := NewVector(-2, 3, 1)
+	t3 := Add(v1, v2)
+	assert.True(t, Equals(t3, NewPoint(1, 1, 6)))
 
 }
 
 func TestSubtractPoints(t *testing.T) {
-	p1 := vector.NewPoint(3, 2, 1)
-	p2 := vector.NewPoint(5, 6, 7)
-	p3 := vector.Subtract(p1, p2)
-	assert.True(t, vector.Equals(p3, vector.NewTuple(-2, -4, -6, 0)))
-	assert.True(t, p3.IsVector())
+	p1 := NewPoint(3, 2, 1)
+	p2 := NewPoint(5, 6, 7)
+	p3 := Subtract(p1, p2)
+	assert.True(t, Equals(p3, NewVector(-2, -4, -6)))
+	assert.True(t, IsVector(p3))
 }
 
 func TestSubtractVectorFromPoint(t *testing.T) {
-	p1 := vector.NewPoint(3, 2, 1)
-	v1 := vector.NewVector(5, 6, 7)
-	p2 := vector.Subtract(p1, v1)
-	assert.True(t, vector.Equals(p2, vector.NewTuple(-2, -4, -6, 1)))
-	assert.True(t, p2.IsPoint())
+	p1 := NewPoint(3, 2, 1)
+	v1 := NewVector(5, 6, 7)
+	p2 := Subtract(p1, v1)
+	assert.True(t, Equals(p2, NewPoint(-2, -4, -6)))
+	assert.True(t, IsPoint(p2))
 }
 
 func TestSubtractVectors(t *testing.T) {
-	v1 := vector.NewVector(3, 2, 1)
-	v2 := vector.NewVector(5, 6, 7)
-	v3 := vector.Subtract(v1, v2)
-	assert.True(t, vector.Equals(v3, vector.NewTuple(-2, -4, -6, 0)))
-	assert.True(t, v3.IsVector())
+	v1 := NewVector(3, 2, 1)
+	v2 := NewVector(5, 6, 7)
+	v3 := Subtract(v1, v2)
+	assert.True(t, Equals(v3, NewVector(-2, -4, -6)))
+	assert.True(t, IsVector(v3))
 }
 
-func TestTupleNegation(t *testing.T) {
-	t1 := vector.NewTuple(1, -2, 3, -4)
-	t1.Negate()
-	assert.True(t, vector.Equals(t1, vector.NewTuple(-1, 2, -3, 4)))
+func TestVectorNegation(t *testing.T) {
+	v1 := NewVector(1, -2, 3)
+	v2 := Negate(v1)
+	assert.True(t, Equals(v2, NewVector(-1, 2, -3)))
 }
 
-func TestTupleMultiplicationByScalar(t *testing.T) {
-	t1 := vector.NewTuple(1, -2, 3, -4)
-	t1.Multiply(3.5)
-	assert.True(t, vector.Equals(t1, vector.NewTuple(3.5, -7, 10.5, -14)))
+func TestVectorMultiplicationByScalar(t *testing.T) {
+	v1 := New4DVector(1, -2, 3, -4)
+	v2 := Multiply(v1, 3.5)
+	assert.True(t, Equals(v2, New4DVector(3.5, -7, 10.5, -14)))
 
-	t2 := vector.NewTuple(1, -2, 3, -4)
-	t2.Multiply(0.5)
-	assert.True(t, vector.Equals(t2, vector.NewTuple(0.5, -1, 1.5, -2)))
+	v3 := New4DVector(1, -2, 3, -4)
+	v4 := Multiply(v3, 0.5)
+	assert.True(t, Equals(v4, New4DVector(0.5, -1, 1.5, -2)))
 }
 
-func TestTupleDivisionByScalar(t *testing.T) {
-	t1 := vector.NewTuple(1, -2, 3, -4)
-	t1.Divide(2)
-	assert.True(t, vector.Equals(t1, vector.NewTuple(0.5, -1, 1.5, -2)))
+func TestVectorDivisionByScalar(t *testing.T) {
+	v1 := New4DVector(1, -2, 3, -4)
+	v2, err := Divide(v1, 2)
+	assert.True(t, Equals(v2, New4DVector(0.5, -1, 1.5, -2)))
+	assert.Nil(t, err)
+	_, err = Divide(v1, 0)
+	assert.NotNil(t, err)
 }
 
 func TestVectorMagnitude(t *testing.T) {
-	v1 := vector.NewVector(1, 0, 0)
-	assert.True(t, util.AlmostEqual(v1.Magnitude(), 1))
-	v2 := vector.NewVector(0, 1, 0)
-	assert.True(t, util.AlmostEqual(v2.Magnitude(), 1))
-	v3 := vector.NewVector(0, 0, 1)
-	assert.True(t, util.AlmostEqual(v3.Magnitude(), 1))
-	v4 := vector.NewVector(1, 2, 3)
-	assert.True(t, util.AlmostEqual(v4.Magnitude(), math.Sqrt(14)))
-	v5 := vector.NewVector(-1, -2, -3)
-	assert.True(t, util.AlmostEqual(v5.Magnitude(), math.Sqrt(14)))
+	tests := map[string]struct {
+		input *Vector
+		want  float64
+	}{
+		"simple":                  {input: NewVector(1, 0, 0), want: 1},
+		"all zero components":     {input: NewVector(0, 0, 0), want: 0},
+		"all non-zero components": {input: NewVector(1, 2, 3), want: math.Sqrt(14)},
+		"negative components":     {input: NewVector(-1, -2, -3), want: math.Sqrt(14)},
+	}
+
+	for name, tc := range tests {
+		got := Magnitude(tc.input)
+		if !assert.True(t, util.FloatEquals(tc.want, got)) {
+			t.Fatalf("%s: expected: %v, got %v", name, tc.want, got)
+		}
+	}
 }
 
 func TestVectorNormalization(t *testing.T) {
-	v1 := vector.NewVector(4, 0, 0)
-	v1.Normalize()
-	assert.True(t, vector.Equals(v1, vector.NewVector(1, 0, 0)))
-	v2 := vector.NewVector(1, 2, 3)
-	v2.Normalize()
-	assert.True(t, vector.Equals(v2, vector.NewVector(1/math.Sqrt(14), 2/math.Sqrt(14), 3/math.Sqrt(14))))
+	tests := map[string]struct {
+		name  string
+		input *Vector
+		want  *Vector
+		err   error
+	}{
+		"simple":                  {input: NewVector(4, 0, 0), want: NewVector(1, 0, 0), err: nil},
+		"all non-zero components": {input: NewVector(1, 2, 3), want: NewVector(1/math.Sqrt(14), 2/math.Sqrt(14), 3/math.Sqrt(14)), err: nil},
+		"all zero components":     {input: NewVector(0, 0, 0), want: nil, err: errors.New("")},
+	}
 
-	util.AlmostEqual(v1.Magnitude(), 1)
-	util.AlmostEqual(v2.Magnitude(), 1)
+	for name, tc := range tests {
+		got, err := Normalize(tc.input)
+		if err != nil {
+			if tc.err == nil {
+				t.Fatalf("%s: expected no error for input: %v, but got %v", name, tc.input, err)
+			}
+			continue
+		}
+
+		if err == nil && tc.err != nil {
+			t.Fatalf("%s: expected error for input: %v, but got %v", name, tc.input, got)
+		}
+
+		if !Equals(tc.want, got) {
+			t.Fatalf("%s: expected: %v, got %v", name, tc.want, got)
+		}
+	}
 }
 
 func TestDotProduct(t *testing.T) {
-	v1 := vector.NewVector(1, 2, 3)
-	v2 := vector.NewVector(2, 3, 4)
-	assert.True(t, util.AlmostEqual(vector.Dot(v1, v2), 20))
+	v1 := NewVector(1, 2, 3)
+	v2 := NewVector(2, 3, 4)
+	assert.True(t, util.FloatEquals(Dot(v1, v2), 20))
 }
 
 func TestCrossProduct(t *testing.T) {
-	v1 := vector.NewVector(1, 2, 3)
-	v2 := vector.NewVector(2, 3, 4)
-	assert.True(t, vector.Equals(vector.Cross(v1, v2), vector.NewVector(-1, 2, -1)))
-	assert.True(t, vector.Equals(vector.Cross(v2, v1), vector.NewVector(1, -2, 1)))
+	v1 := NewVector(1, 2, 3)
+	v2 := NewVector(2, 3, 4)
+	assert.True(t, Equals(Cross(v1, v2), NewVector(-1, 2, -1)))
+	assert.True(t, Equals(Cross(v2, v1), NewVector(1, -2, 1)))
 }
