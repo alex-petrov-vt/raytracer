@@ -110,7 +110,7 @@ func TestVectorMagnitude(t *testing.T) {
 
 	for name, tc := range tests {
 		got := Magnitude(tc.input)
-		if !assert.True(t, util.FloatEquals(tc.want, got)) {
+		if !util.FloatEquals(tc.want, got) {
 			t.Fatalf("%s: expected: %v, got %v", name, tc.want, got)
 		}
 	}
