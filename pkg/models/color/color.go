@@ -23,10 +23,12 @@ func Subtract(c1, c2 *Color) *Color {
 }
 
 // Scale scales a color by a scalar
-func (c *Color) Scale(s float64) {
-	c.Red *= s
-	c.Green *= s
-	c.Blue *= s
+func Scale(c *Color, s float64) *Color {
+	return &Color{
+		c.Red * s,
+		c.Green * s,
+		c.Blue * s,
+	}
 }
 
 // Multiply computes Hadamard (or Schur) product of two colors
@@ -35,6 +37,6 @@ func Multiply(c1, c2 *Color) *Color {
 }
 
 func Equals(c1, c2 *Color) bool {
-	return util.AlmostEqual(c1.Red, c2.Red) && util.AlmostEqual(c1.Green, c2.Green) &&
-		util.AlmostEqual(c1.Blue, c2.Blue)
+	return util.FloatEquals(c1.Red, c2.Red) && util.FloatEquals(c1.Green, c2.Green) &&
+		util.FloatEquals(c1.Blue, c2.Blue)
 }
