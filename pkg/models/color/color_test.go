@@ -48,3 +48,21 @@ func TestMultiplyingTwoColors(t *testing.T) {
 	c3 := Multiply(c1, c2)
 	assert.True(t, Equals(c3, NewColor(0.9, 0.2, 0.04)))
 }
+
+func TestColorTo255Range(t *testing.T) {
+	tests := map[string]struct {
+		input *Color
+		want  *Color
+	}{
+		"simple":    {input: NewColor(0.5, 0, 0), want: NewColor(128, 0, 0)},
+		"overflow":  {input: NewColor(1.5, 0, 0), want: NewColor(255, 0, 0)},
+		"underflow": {input: NewColor(-0.5, 0, 1), want: NewColor(0, 0, 255)},
+	}
+
+	for name, tc := range tests {
+		got := ColorTo255Range(tc.input)
+		if !Equals(got, tc.want) {
+			t.Fatalf("%s: expected: %v, got %v", name, tc.want, got)
+		}
+	}
+}

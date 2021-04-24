@@ -1,6 +1,10 @@
 package color
 
-import "github.com/alex-petrov-vt/raytracer/pkg/util"
+import (
+	"math"
+
+	"github.com/alex-petrov-vt/raytracer/pkg/util"
+)
 
 // Color is a struct that represents a color in an RGB format
 type Color struct {
@@ -39,4 +43,22 @@ func Multiply(c1, c2 *Color) *Color {
 func Equals(c1, c2 *Color) bool {
 	return util.FloatEquals(c1.Red, c2.Red) && util.FloatEquals(c1.Green, c2.Green) &&
 		util.FloatEquals(c1.Blue, c2.Blue)
+}
+
+func ColorTo255Range(c *Color) *Color {
+	return &Color{
+		colorComponentTo255Range(c.Red),
+		colorComponentTo255Range(c.Green),
+		colorComponentTo255Range(c.Blue),
+	}
+}
+
+func colorComponentTo255Range(c float64) float64 {
+	if c >= 1 {
+		return 255
+	} else if c <= 0 {
+		return 0
+	} else {
+		return math.Round(c * 255)
+	}
 }
