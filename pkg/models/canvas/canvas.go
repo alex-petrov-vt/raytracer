@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"unicode/utf8"
 
 	"github.com/alex-petrov-vt/raytracer/pkg/models/color"
 )
@@ -80,11 +81,24 @@ func writeHeader(w *bufio.Writer, c *Canvas) error {
 func writeData(w *bufio.Writer, c *Canvas) error {
 	for _, row := range c.Colors {
 		rowString := ""
+		lineLenght := 0
 		for rowCount, c := range row {
 			colorToSave := color.ColorTo255Range(c)
-			rowString += fmt.Sprintf("%d %d %d", int(colorToSave.Red), int(colorToSave.Green), int(colorToSave.Blue))
+			colorToSaveString := fmt.Sprintf("%d %d %d", int(colorToSave.Red), int(colorToSave.Green), int(colorToSave.Blue))
+			rowString += colorToSaveString
+			lineLenght += utf8.RuneCountInString(colorToSaveString)
+			if lineLenght > 70 {
+				for i := utf8.RuneCountInString(rowString) - (lineLenght - 70); i >= 0; i-- {
+					if rowString[i] == ' ' {
+						rowString = rowString[:i] + "\n" + rowString[i+1:]
+						lineLenght = len(rowString[i+1:])
+						break
+					}
+				}
+			}
 			if rowCount != len(row)-1 {
 				rowString += " "
+				lineLenght += 1
 			} else {
 				rowString += "\n"
 			}

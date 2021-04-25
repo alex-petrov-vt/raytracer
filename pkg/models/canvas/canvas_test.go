@@ -3,7 +3,6 @@ package canvas
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"testing"
 
 	"github.com/alex-petrov-vt/raytracer/pkg/models/color"
@@ -32,36 +31,66 @@ func TestWritePixel(t *testing.T) {
 }
 
 func TestCanvasToPPM(t *testing.T) {
-	c := NewCanvas(5, 3)
-	c1 := color.NewColor(1.5, 0, 0)
-	c2 := color.NewColor(0, 0.5, 0)
-	c3 := color.NewColor(-0.5, 0, 1)
-	c.WritePixel(0, 0, c1)
-	c.WritePixel(2, 1, c2)
-	c.WritePixel(4, 2, c3)
-	var b bytes.Buffer
-	writePPM(&b, c)
-	r := bufio.NewReader(&b)
+	colors := []*color.Color{color.NewColor(1.5, 0, 0), color.NewColor(0, 0.5, 0),
+		color.NewColor(-0.5, 0, 1)}
+	locations := []int{0, 0, 2, 1, 4, 2}
+	c1 := prepareCanvas(5, 3, colors, locations)
 
-	// Header
-	magicNum, err := r.ReadBytes('\n')
-	assert.Nil(t, err)
-	assert.Equal(t, "P3\n", string(magicNum))
-	widthHeight, err := r.ReadBytes('\n')
-	assert.Nil(t, err)
-	assert.Equal(t, fmt.Sprintf("%d %d\n", c.Width, c.Height), string(widthHeight))
-	maxColor, err := r.ReadBytes('\n')
-	assert.Nil(t, err)
-	assert.Equal(t, "255\n", string(maxColor))
+	colors = nil
+	// Create canvas with every pixel set to color (1, 0.8, 0.6) of size 10x2
+	for i := 0; i < 10; i++ {
+		for j := 0; j < 2; j++ {
+			colors = append(colors, color.NewColor(1, 0.8, 0.6))
+		}
+	}
+	locations = nil
+	for j := 0; j < 2; j++ {
+		for i := 0; i < 10; i++ {
+			locations = append(locations, i)
+			locations = append(locations, j)
+		}
+	}
+	c2 := prepareCanvas(10, 2, colors, locations)
 
-	// Data
-	row1, err := r.ReadBytes('\n')
-	assert.Nil(t, err)
-	assert.Equal(t, "255 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n", string(row1))
-	row2, err := r.ReadBytes('\n')
-	assert.Nil(t, err)
-	assert.Equal(t, "0 0 0 0 0 0 0 128 0 0 0 0 0 0 0\n", string(row2))
-	row3, err := r.ReadBytes('\n')
-	assert.Nil(t, err)
-	assert.Equal(t, "0 0 0 0 0 0 0 0 0 0 0 0 0 0 255\n", string(row3))
+	tests := map[string]struct {
+		input *Canvas
+		want  string
+	}{
+		"simple": {input: c1, want: `P3
+5 3
+255
+255 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 128 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 255
+`},
+		"long lines": {input: c2, want: `P3
+10 2
+255
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204
+153 255 204 153 255 204 153 255 204 153 255 204 153
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204
+153 255 204 153 255 204 153 255 204 153 255 204 153
+`},
+	}
+
+	for name, tc := range tests {
+		var b bytes.Buffer
+		writePPM(&b, tc.input)
+		r := bufio.NewReader(&b)
+		got := b.String()
+		if tc.want != string(got) {
+			t.Fatalf("%s: expected: %v, got %v", name, tc.want, got)
+		}
+		assert.Equal(t, r.Buffered(), 0)
+	}
+}
+
+func prepareCanvas(w, h int, colors []*color.Color, locations []int) *Canvas {
+	c := NewCanvas(w, h)
+	i := 0
+	for _, color := range colors {
+		c.WritePixel(locations[i], locations[i+1], color)
+		i += 2
+	}
+	return c
 }
