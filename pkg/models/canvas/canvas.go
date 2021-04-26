@@ -2,6 +2,7 @@ package canvas
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -47,17 +48,23 @@ func newColorMap(w, h int) [][]*color.Color {
 
 // WritePixel writes a color provided in col to the pixel located at [w][h]
 func (c *Canvas) WritePixel(w, h int, col *color.Color) {
+	if w < 0 || w >= c.Width || h < 0 || h >= c.Height {
+		return
+	}
 	c.Colors[h][w] = col
 }
 
 //  GetPixel returns a color of the pixel localted at [w][h]
-func (c *Canvas) GetPixel(w, h int) *color.Color {
-	return c.Colors[h][w]
+func (c *Canvas) GetPixel(w, h int) (*color.Color, error) {
+	if w < 0 || w >= c.Width || h < 0 || h >= c.Height {
+		return nil, errors.New("attempt to access pixel outside of canvas")
+	}
+	return c.Colors[h][w], nil
 }
 
 // SaveToPPM saves canvas to a .ppm file
 func (c *Canvas) SaveToPPM(file string) error {
-	handle, err := os.Open(file)
+	handle, err := os.Create(file)
 	if err != nil {
 		return err
 	}

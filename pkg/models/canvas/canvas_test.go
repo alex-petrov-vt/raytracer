@@ -26,8 +26,13 @@ func TestWritePixel(t *testing.T) {
 	red := color.NewColor(1, 0, 0)
 
 	c.WritePixel(2, 3, red)
-	newRed := c.GetPixel(2, 3)
+	newRed, err := c.GetPixel(2, 3)
 	assert.True(t, color.Equals(red, newRed))
+	assert.Nil(t, err)
+	newRed, err = c.GetPixel(100, 200)
+	assert.Nil(t, newRed)
+	assert.NotNil(t, err)
+
 }
 
 func TestCanvasToPPM(t *testing.T) {
