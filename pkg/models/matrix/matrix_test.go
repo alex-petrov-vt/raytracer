@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/alex-petrov-vt/raytracer/pkg/models/vector"
 	"github.com/alex-petrov-vt/raytracer/pkg/util"
 )
 
@@ -118,5 +119,34 @@ func TestMatrixMultiplication(t *testing.T) {
 			t.Fatalf("%s: expected %v, got %v", name, tc.want, got)
 		}
 	}
+}
 
+func TestMatrixMultiplicationByVector(t *testing.T) {
+	a := NewMatrix([][]float64{{1, 2, 3, 4}, {2, 4, 4, 2}, {8, 6, 4, 1}, {0, 0, 0, 1}})
+	b := NewMatrix([][]float64{{1, 2}, {3, 4}})
+	c := vector.New4DVector(1, 2, 3, 1)
+
+	tests := map[string]struct {
+		m    *Matrix
+		v    *vector.Vector
+		want *vector.Vector
+		err  error
+	}{
+		"simple":                  {m: a, v: c, want: vector.New4DVector(18, 24, 33, 1), err: nil},
+		"incompatible dimensions": {m: b, v: c, want: nil, err: errors.New("")},
+	}
+
+	for name, tc := range tests {
+		got, err := MultiplyByVector(tc.m, tc.v)
+		if err != nil {
+			if tc.err == nil {
+				t.Fatalf("%s: unexpected error %v", name, err)
+			}
+			continue
+		}
+
+		if !vector.Equals(got, tc.want) {
+			t.Fatalf("%s: expected %v, got %v", name, tc.want, got)
+		}
+	}
 }

@@ -32,6 +32,22 @@ func TestNewVector(t *testing.T) {
 	assert.True(t, IsVector(vec))
 }
 
+func TestAsSlice(t *testing.T) {
+	vec := NewVector(4.3, -4.2, 3.1)
+	assert.Equal(t, AsSlice(vec), []float64{4.3, -4.2, 3.1, 0})
+}
+
+func TestFromSlice(t *testing.T) {
+	s1 := []float64{4.3, -4.2, 0, 1}
+	s2 := []float64{1, 2}
+
+	v, err := FromSlice(s1)
+	assert.Nil(t, err)
+	assert.Equal(t, v, New4DVector(4.3, -4.2, 0, 1))
+	_, err = FromSlice(s2)
+	assert.NotNil(t, err)
+}
+
 func TestVectorEquals(v *testing.T) {
 	v1 := NewVector(1, 2, 3)
 	v2 := NewVector(1, 2, 3)

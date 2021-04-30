@@ -43,6 +43,24 @@ func New4DVector(x, y, z, w float64) *Vector {
 	}
 }
 
+// AsSlice returns vector as a slice
+func AsSlice(v *Vector) []float64 {
+	return []float64{v.X, v.Y, v.Z, v.W}
+}
+
+// FromSlice creates a 4D vector from slice
+func FromSlice(s []float64) (*Vector, error) {
+	if len(s) != 4 {
+		return nil, errors.New("can't create 4D vector from a slice of length not equal to 4")
+	}
+	return &Vector{
+		s[0],
+		s[1],
+		s[2],
+		s[3],
+	}, nil
+}
+
 // IsPoint returns true if Vector represents a Point
 func IsPoint(v *Vector) bool {
 	return util.FloatEquals(v.W, 1.0)

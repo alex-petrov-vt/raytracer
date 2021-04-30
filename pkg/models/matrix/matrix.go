@@ -1,6 +1,10 @@
 package matrix
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/alex-petrov-vt/raytracer/pkg/models/vector"
+)
 
 type Matrix struct {
 	Width, Height int
@@ -70,4 +74,22 @@ func Multiply(m1, m2 *Matrix) (*Matrix, error) {
 		newElems = append(newElems, newRow)
 	}
 	return NewMatrix(newElems), nil
+}
+
+// MultiplyByVector multiplies a matrix by a vector
+func MultiplyByVector(m *Matrix, v *vector.Vector) (*vector.Vector, error) {
+	if m.Width != 4 {
+		return nil, errors.New("incompatible dimensions for matrix multiplication")
+	}
+
+	var result []float64
+	vAsSlice := vector.AsSlice(v)
+	for row := range m.Elements {
+		rowResult := 0.0
+		for i := 0; i < 4; i++ {
+			rowResult += m.Elements[row][i] * vAsSlice[i]
+		}
+		result = append(result, rowResult)
+	}
+	return vector.FromSlice(result)
 }
