@@ -51,7 +51,7 @@ func AsSlice(v *Vector) []float64 {
 // FromSlice creates a 4D vector from slice
 func FromSlice(s []float64) (*Vector, error) {
 	if len(s) != 4 {
-		return nil, errors.New("can't create 4D vector from a slice of length not equal to 4")
+		return nil, errors.New("can't create a 4D vector from a slice of length not equal to 4")
 	}
 	return &Vector{
 		s[0],

@@ -9,14 +9,14 @@ import (
 
 type Matrix struct {
 	Width, Height int
-	Elements      [][]float64
+	elements      [][]float64
 }
 
 // NewMatrix creates new matrix given an input 2D array
 func NewMatrix(input [][]float64) *Matrix {
 	if len(input) == 0 {
 		return &Matrix{
-			len(input),
+			0,
 			0,
 			input,
 		}
@@ -28,24 +28,24 @@ func NewMatrix(input [][]float64) *Matrix {
 	}
 }
 
-// GetElement returns an element with coordinates [row][col] or error if those
+// GetElement returns an element with coordinates (row, col) or error if those
 // are outside of the boundaries of the matrix
 func (m *Matrix) GetElement(row, col int) (float64, error) {
 	if row < 0 || row >= m.Height || col < 0 || col >= m.Width {
 		return 0, errors.New("access elements outside of matrix")
 	}
-	return m.Elements[row][col], nil
+	return m.elements[row][col], nil
 }
 
-// Equals compares two matrices for equality
-func Equals(m1, m2 *Matrix) bool {
+// IsEqual compares two matrices for equality
+func IsEqual(m1, m2 *Matrix) bool {
 	if m1.Height != m2.Height || m1.Width != m2.Width {
 		return false
 	}
 
-	for row := range m1.Elements {
-		for col := range m1.Elements[row] {
-			if !util.FloatEquals(m1.Elements[row][col], m2.Elements[row][col]) {
+	for row := 0; row < m1.Height; row++ {
+		for col := 0; col < m1.Width; col++ {
+			if !util.FloatEquals(m1.elements[row][col], m2.elements[row][col]) {
 				return false
 			}
 		}
@@ -62,19 +62,19 @@ func Multiply(m1, m2 *Matrix) (*Matrix, error) {
 		return nil, errors.New("incompatible dimensions for matrix multiplication")
 	}
 
-	var newElems [][]float64
-	for row := range m1.Elements {
+	var newMatrix [][]float64
+	for row := 0; row < m1.Height; row++ {
 		var newRow []float64
-		for col := range m1.Elements[row] {
+		for col := 0; col < m1.Width; col++ {
 			result := 0.0
-			for i := range m2.Elements {
-				result += m1.Elements[row][i] * m2.Elements[i][col]
+			for i := 0; i < m2.Width; i++ {
+				result += m1.elements[row][i] * m2.elements[i][col]
 			}
 			newRow = append(newRow, result)
 		}
-		newElems = append(newElems, newRow)
+		newMatrix = append(newMatrix, newRow)
 	}
-	return NewMatrix(newElems), nil
+	return NewMatrix(newMatrix), nil
 }
 
 // MultiplyByVector multiplies a matrix by a vector
@@ -85,10 +85,10 @@ func MultiplyByVector(m *Matrix, v *vector.Vector) (*vector.Vector, error) {
 
 	var result []float64
 	vAsSlice := vector.AsSlice(v)
-	for row := range m.Elements {
+	for row := 0; row < m.Height; row++ {
 		rowResult := 0.0
-		for i := 0; i < 4; i++ {
-			rowResult += m.Elements[row][i] * vAsSlice[i]
+		for i := 0; i < m.Width; i++ {
+			rowResult += m.elements[row][i] * vAsSlice[i]
 		}
 		result = append(result, rowResult)
 	}
@@ -101,7 +101,7 @@ func Transpose(m *Matrix) *Matrix {
 	for col := 0; col < m.Height; col++ {
 		var newRow []float64
 		for row := 0; row < m.Width; row++ {
-			newRow = append(newRow, m.Elements[row][col])
+			newRow = append(newRow, m.elements[row][col])
 		}
 		result = append(result, newRow)
 	}
@@ -119,7 +119,7 @@ func GetDeterminant(m *Matrix) float64 {
 		result = a*d - b*c
 	} else {
 		for col := 0; col < m.Width; col++ {
-			result += m.Elements[0][col] * GetCofactor(m, 0, col)
+			result += m.elements[0][col] * GetCofactor(m, 0, col)
 		}
 	}
 	return result
@@ -137,7 +137,7 @@ func GetSubmatrix(m *Matrix, skipRow, skipCol int) *Matrix {
 			if col == skipCol {
 				continue
 			}
-			newRow = append(newRow, m.Elements[row][col])
+			newRow = append(newRow, m.elements[row][col])
 		}
 		result = append(result, newRow)
 	}
@@ -150,6 +150,7 @@ func GetMinor(m *Matrix, row, col int) float64 {
 	return GetDeterminant(sm)
 }
 
+// GetCofactor returns a cofactor of a matrix element at (row,col)
 func GetCofactor(m *Matrix, row, col int) float64 {
 	minor := GetMinor(m, row, col)
 	if (row+col)%2 == 0 {
@@ -159,10 +160,12 @@ func GetCofactor(m *Matrix, row, col int) float64 {
 	}
 }
 
+// IsInvertible checks if matrix has an inverse
 func IsInvertible(m *Matrix) bool {
 	return GetDeterminant(m) != 0
 }
 
+// GetInverse returns an inverse of matrix m
 func GetInverse(m *Matrix) (*Matrix, error) {
 	if !IsInvertible(m) {
 		return nil, errors.New("matrix is not invertible")

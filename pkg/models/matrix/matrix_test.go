@@ -10,9 +10,21 @@ import (
 )
 
 func TestMatrices(t *testing.T) {
-	m1 := NewMatrix([][]float64{{1, 2, 3, 4}, {5.5, 6.5, 7.5, 8.5}, {9, 10, 11, 12}, {13.5, 14.5, 15.5, 16.5}})
-	m2 := NewMatrix([][]float64{{-3, 5}, {1, -2}})
-	m3 := NewMatrix([][]float64{{-3, 5, 0}, {1, -2, -7}, {0, 1, 1}})
+	m1 := NewMatrix([][]float64{
+		{1, 2, 3, 4},
+		{5.5, 6.5, 7.5, 8.5},
+		{9, 10, 11, 12},
+		{13.5, 14.5, 15.5, 16.5},
+	})
+	m2 := NewMatrix([][]float64{
+		{-3, 5},
+		{1, -2},
+	})
+	m3 := NewMatrix([][]float64{
+		{-3, 5, 0},
+		{1, -2, -7},
+		{0, 1, 1},
+	})
 	m4 := NewMatrix([][]float64{{}})
 
 	tests := []struct {
@@ -58,14 +70,40 @@ func TestMatrices(t *testing.T) {
 }
 
 func TestMatrixEqual(t *testing.T) {
-	a := NewMatrix([][]float64{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 8, 7, 6}, {5, 4, 3, 2}})
-	b := NewMatrix([][]float64{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 8, 7, 6}, {5, 4, 3, 2}})
-	c := NewMatrix([][]float64{{2, 3, 4, 5}, {6, 7, 8, 9}, {8, 7, 6, 5}, {4, 3, 2, 1}})
+	a := NewMatrix([][]float64{
+		{1, 2, 3, 4},
+		{5, 6, 7, 8},
+		{9, 8, 7, 6},
+		{5, 4, 3, 2},
+	})
+	b := NewMatrix([][]float64{
+		{1, 2, 3, 4},
+		{5, 6, 7, 8},
+		{9, 8, 7, 6},
+		{5, 4, 3, 2},
+	})
+	c := NewMatrix([][]float64{
+		{2, 3, 4, 5},
+		{6, 7, 8, 9},
+		{8, 7, 6, 5},
+		{4, 3, 2, 1},
+	})
 	d := NewMatrix([][]float64{{}})
 	e := NewMatrix([][]float64{{}})
-	f := NewMatrix([][]float64{{1, 2}, {3, 4}})
-	g := NewMatrix([][]float64{{1, 2, 3, 4}, {5, 6, 7, 8}})
-	h := NewMatrix([][]float64{{1}, {2}, {3}, {4}})
+	f := NewMatrix([][]float64{
+		{1, 2},
+		{3, 4},
+	})
+	g := NewMatrix([][]float64{
+		{1, 2, 3, 4},
+		{5, 6, 7, 8},
+	})
+	h := NewMatrix([][]float64{
+		{1},
+		{2},
+		{3},
+		{4},
+	})
 
 	tests := map[string]struct {
 		m1   *Matrix
@@ -82,7 +120,7 @@ func TestMatrixEqual(t *testing.T) {
 	}
 
 	for name, tc := range tests {
-		got := Equals(tc.m1, tc.m2)
+		got := IsEqual(tc.m1, tc.m2)
 		if got != tc.want {
 			t.Fatalf("%s: exptected %v, got %v", name, tc.want, got)
 		}
@@ -90,12 +128,35 @@ func TestMatrixEqual(t *testing.T) {
 }
 
 func TestMatrixMultiplication(t *testing.T) {
-	a := NewMatrix([][]float64{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 8, 7, 6}, {5, 4, 3, 2}})
-	b := NewMatrix([][]float64{{-2, 1, 2, 3}, {3, 2, 1, -1}, {4, 3, 6, 5}, {1, 2, 7, 8}})
-	c := NewMatrix([][]float64{{20, 22, 50, 48}, {44, 54, 114, 108}, {40, 58, 110, 102}, {16, 26, 46, 42}})
+	a := NewMatrix([][]float64{
+		{1, 2, 3, 4},
+		{5, 6, 7, 8},
+		{9, 8, 7, 6},
+		{5, 4, 3, 2},
+	})
+	b := NewMatrix([][]float64{
+		{-2, 1, 2, 3},
+		{3, 2, 1, -1},
+		{4, 3, 6, 5},
+		{1, 2, 7, 8},
+	})
+	c := NewMatrix([][]float64{
+		{20, 22, 50, 48},
+		{44, 54, 114, 108},
+		{40, 58, 110, 102},
+		{16, 26, 46, 42},
+	})
 	d := NewMatrix([][]float64{{}})
-	e := NewMatrix([][]float64{{1, 2}, {3, 4}})
-	f := NewMatrix([][]float64{{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}})
+	e := NewMatrix([][]float64{
+		{1, 2},
+		{3, 4},
+	})
+	f := NewMatrix([][]float64{
+		{1, 0, 0, 0},
+		{0, 1, 0, 0},
+		{0, 0, 1, 0},
+		{0, 0, 0, 1},
+	})
 
 	tests := map[string]struct {
 		m1   *Matrix
@@ -118,17 +179,30 @@ func TestMatrixMultiplication(t *testing.T) {
 			continue
 		}
 
-		if !Equals(got, tc.want) {
+		if !IsEqual(got, tc.want) {
 			t.Fatalf("%s: expected %v, got %v", name, tc.want, got)
 		}
 	}
 }
 
 func TestMatrixMultiplicationByVector(t *testing.T) {
-	a := NewMatrix([][]float64{{1, 2, 3, 4}, {2, 4, 4, 2}, {8, 6, 4, 1}, {0, 0, 0, 1}})
-	b := NewMatrix([][]float64{{1, 2}, {3, 4}})
+	a := NewMatrix([][]float64{
+		{1, 2, 3, 4},
+		{2, 4, 4, 2},
+		{8, 6, 4, 1},
+		{0, 0, 0, 1},
+	})
+	b := NewMatrix([][]float64{
+		{1, 2},
+		{3, 4},
+	})
 	c := vector.New4DVector(1, 2, 3, 1)
-	d := NewMatrix([][]float64{{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}})
+	d := NewMatrix([][]float64{
+		{1, 0, 0, 0},
+		{0, 1, 0, 0},
+		{0, 0, 1, 0},
+		{0, 0, 0, 1},
+	})
 
 	tests := map[string]struct {
 		m    *Matrix
@@ -157,30 +231,57 @@ func TestMatrixMultiplicationByVector(t *testing.T) {
 }
 
 func TestMatrixTransposition(t *testing.T) {
-	a := NewMatrix([][]float64{{1, 2, 3, 4}, {2, 4, 4, 2}, {8, 6, 4, 1}, {0, 0, 0, 1}})
-	b := NewMatrix([][]float64{{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}})
+	a := NewMatrix([][]float64{
+		{1, 2, 3, 4},
+		{2, 4, 4, 2},
+		{8, 6, 4, 1},
+		{0, 0, 0, 1},
+	})
+	b := NewMatrix([][]float64{
+		{1, 0, 0, 0},
+		{0, 1, 0, 0},
+		{0, 0, 1, 0},
+		{0, 0, 0, 1},
+	})
 
 	tests := map[string]struct {
 		m    *Matrix
 		want *Matrix
 	}{
-		"simple":   {m: a, want: NewMatrix([][]float64{{1, 2, 8, 0}, {2, 4, 6, 0}, {3, 4, 4, 0}, {4, 2, 1, 1}})},
+		"simple": {m: a, want: NewMatrix([][]float64{
+			{1, 2, 8, 0},
+			{2, 4, 6, 0},
+			{3, 4, 4, 0},
+			{4, 2, 1, 1},
+		})},
 		"identity": {m: b, want: b},
 	}
 
 	for name, tc := range tests {
 		got := Transpose(tc.m)
 
-		if !Equals(got, tc.want) {
+		if !IsEqual(got, tc.want) {
 			t.Fatalf("%s: expected %v, got %v", name, tc.want, got)
 		}
 	}
 }
 
 func TestFindingDeterminant(t *testing.T) {
-	a := NewMatrix([][]float64{{1, 5}, {-3, 2}})
-	b := NewMatrix([][]float64{{1, 2, 6}, {-5, 8, -4}, {2, 6, 4}})
-	c := NewMatrix([][]float64{{-2, -8, 3, 5}, {-3, 1, 7, 3}, {1, 2, -9, 6}, {-6, 7, 7, -9}})
+	a := NewMatrix([][]float64{{
+		1, 5},
+		{-3, 2},
+	})
+	b := NewMatrix([][]float64{
+		{1, 2, 6},
+		{-5, 8, -4},
+		{2, 6, 4},
+	})
+	c := NewMatrix([][]float64{
+		{-2, -8, 3, 5},
+		{-3, 1, 7, 3},
+		{1, 2, -9, 6},
+		{-6, 7, 7, -9},
+	})
 	tests := map[string]struct {
 		m    *Matrix
 		want float64
@@ -199,21 +300,45 @@ func TestFindingDeterminant(t *testing.T) {
 }
 
 func TestSubmatrices(t *testing.T) {
-	a := NewMatrix([][]float64{{1, 5, 0}, {-3, 2, 7}, {0, 6, -3}})
-	b := NewMatrix([][]float64{{-6, 1, 1, 6}, {-8, 5, 8, 6}, {-1, 0, 8, 2}, {-7, 1, -1, 1}})
-	assert.True(t, Equals(GetSubmatrix(a, 0, 2), NewMatrix([][]float64{{-3, 2}, {0, 6}})))
-	assert.True(t, Equals(GetSubmatrix(b, 2, 1), NewMatrix([][]float64{{-6, 1, 6}, {-8, 8, 6}, {-7, -1, 1}})))
+	a := NewMatrix([][]float64{
+		{1, 5, 0},
+		{-3, 2, 7},
+		{0, 6, -3},
+	})
+	b := NewMatrix([][]float64{
+		{-6, 1, 1, 6},
+		{-8, 5, 8, 6},
+		{-1, 0, 8, 2},
+		{-7, 1, -1, 1},
+	})
+	assert.True(t, IsEqual(GetSubmatrix(a, 0, 2), NewMatrix([][]float64{
+		{-3, 2},
+		{0, 6},
+	})))
+	assert.True(t, IsEqual(GetSubmatrix(b, 2, 1), NewMatrix([][]float64{
+		{-6, 1, 6},
+		{-8, 8, 6},
+		{-7, -1, 1},
+	})))
 }
 
 func TestMinors(t *testing.T) {
-	a := NewMatrix([][]float64{{3, 5, 0}, {2, -1, -7}, {6, -1, 5}})
+	a := NewMatrix([][]float64{
+		{3, 5, 0},
+		{2, -1, -7},
+		{6, -1, 5},
+	})
 	b := GetSubmatrix(a, 1, 0)
 	assert.Equal(t, GetDeterminant(b), 25.0)
 	assert.Equal(t, GetMinor(a, 1, 0), 25.0)
 }
 
 func TestCofactors(t *testing.T) {
-	a := NewMatrix([][]float64{{3, 5, 0}, {2, -1, -7}, {6, -1, 5}})
+	a := NewMatrix([][]float64{
+		{3, 5, 0},
+		{2, -1, -7},
+		{6, -1, 5},
+	})
 	assert.Equal(t, GetMinor(a, 0, 0), -12.0)
 	assert.Equal(t, GetCofactor(a, 0, 0), -12.0)
 	assert.Equal(t, GetMinor(a, 1, 0), 25.0)
@@ -221,8 +346,18 @@ func TestCofactors(t *testing.T) {
 }
 
 func TestIsInvertible(t *testing.T) {
-	a := NewMatrix([][]float64{{6, 4, 4, 4}, {5, 5, 7, 6}, {4, -9, 3, -7}, {9, 1, 7, -6}})
-	b := NewMatrix([][]float64{{-4, 2, -2, -3}, {9, 6, 2, 6}, {0, -5, 1, -5}, {0, 0, 0, 0}})
+	a := NewMatrix([][]float64{
+		{6, 4, 4, 4},
+		{5, 5, 7, 6},
+		{4, -9, 3, -7},
+		{9, 1, 7, -6},
+	})
+	b := NewMatrix([][]float64{
+		{-4, 2, -2, -3},
+		{9, 6, 2, 6},
+		{0, -5, 1, -5},
+		{0, 0, 0, 0},
+	})
 
 	assert.True(t, IsInvertible(a))
 	assert.False(t, IsInvertible(b))
@@ -281,20 +416,30 @@ func TestMatrixInversion(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected error %v for input %v", err, tc.input)
 		}
-		if !Equals(got, tc.want) {
+		if !IsEqual(got, tc.want) {
 			t.Fatalf("expected %v, got %v", tc.want, got)
 		}
 	}
 }
 
 func TestMutliplyingByInverse(t *testing.T) {
-	a := NewMatrix([][]float64{{3, -9, 7, 3}, {3, -8, 2, -9}, {-4, 4, 4, 1}, {-6, 5, -1, 1}})
-	b := NewMatrix([][]float64{{8, 2, 2, 2}, {3, -1, 7, 0}, {7, 0, 5, 4}, {6, -2, 0, 5}})
+	a := NewMatrix([][]float64{
+		{3, -9, 7, 3},
+		{3, -8, 2, -9},
+		{-4, 4, 4, 1},
+		{-6, 5, -1, 1},
+	})
+	b := NewMatrix([][]float64{
+		{8, 2, 2, 2},
+		{3, -1, 7, 0},
+		{7, 0, 5, 4},
+		{6, -2, 0, 5},
+	})
 	c, err := Multiply(a, b)
 	assert.Nil(t, err)
 	bInv, err := GetInverse(b)
 	assert.Nil(t, err)
 	d, err := Multiply(c, bInv)
 	assert.Nil(t, err)
-	assert.True(t, Equals(d, a))
+	assert.True(t, IsEqual(d, a))
 }
