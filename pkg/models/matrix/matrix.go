@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/alex-petrov-vt/raytracer/pkg/models/vector"
+	"github.com/alex-petrov-vt/raytracer/pkg/util"
 )
 
 type Matrix struct {
@@ -44,7 +45,7 @@ func Equals(m1, m2 *Matrix) bool {
 
 	for row := range m1.Elements {
 		for col := range m1.Elements[row] {
-			if m1.Elements[row][col] != m2.Elements[row][col] {
+			if !util.FloatEquals(m1.Elements[row][col], m2.Elements[row][col]) {
 				return false
 			}
 		}
@@ -92,4 +93,89 @@ func MultiplyByVector(m *Matrix, v *vector.Vector) (*vector.Vector, error) {
 		result = append(result, rowResult)
 	}
 	return vector.FromSlice(result)
+}
+
+// Transpose transposes the matrix (turns rows into cols)
+func Transpose(m *Matrix) *Matrix {
+	var result [][]float64
+	for col := 0; col < m.Height; col++ {
+		var newRow []float64
+		for row := 0; row < m.Width; row++ {
+			newRow = append(newRow, m.Elements[row][col])
+		}
+		result = append(result, newRow)
+	}
+	return NewMatrix(result)
+}
+
+// GetDeterminant returns a determinant of the matrix
+func GetDeterminant(m *Matrix) float64 {
+	result := 0.0
+	if m.Width == 2 && m.Height == 2 {
+		a, _ := m.GetElement(0, 0)
+		d, _ := m.GetElement(1, 1)
+		b, _ := m.GetElement(1, 0)
+		c, _ := m.GetElement(0, 1)
+		result = a*d - b*c
+	} else {
+		for col := 0; col < m.Width; col++ {
+			result += m.Elements[0][col] * GetCofactor(m, 0, col)
+		}
+	}
+	return result
+}
+
+// GetSubmatrix returns a submatrix of matrix m with skipRow and skipCol removed
+func GetSubmatrix(m *Matrix, skipRow, skipCol int) *Matrix {
+	var result [][]float64
+	for row := 0; row < m.Height; row++ {
+		if row == skipRow {
+			continue
+		}
+		var newRow []float64
+		for col := 0; col < m.Width; col++ {
+			if col == skipCol {
+				continue
+			}
+			newRow = append(newRow, m.Elements[row][col])
+		}
+		result = append(result, newRow)
+	}
+	return NewMatrix(result)
+}
+
+// GetMinor returns a minor of a matrix element at (row, col)
+func GetMinor(m *Matrix, row, col int) float64 {
+	sm := GetSubmatrix(m, row, col)
+	return GetDeterminant(sm)
+}
+
+func GetCofactor(m *Matrix, row, col int) float64 {
+	minor := GetMinor(m, row, col)
+	if (row+col)%2 == 0 {
+		return minor
+	} else {
+		return -minor
+	}
+}
+
+func IsInvertible(m *Matrix) bool {
+	return GetDeterminant(m) != 0
+}
+
+func GetInverse(m *Matrix) (*Matrix, error) {
+	if !IsInvertible(m) {
+		return nil, errors.New("matrix is not invertible")
+	}
+	var result [][]float64
+	det := GetDeterminant(m)
+	for row := 0; row < m.Height; row++ {
+		var newRow []float64
+		for col := 0; col < m.Width; col++ {
+			c := GetCofactor(m, row, col)
+			newRow = append(newRow, c/det)
+		}
+		result = append(result, newRow)
+	}
+	return Transpose(NewMatrix(result)), nil
 }

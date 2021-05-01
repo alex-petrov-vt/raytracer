@@ -4,7 +4,7 @@ import (
 	"math"
 )
 
-const float64EqualityThreshold = 1e-7
+const float64EqualityThreshold = 1e-5
 
 // FloatEquals compares two float64 numbers using epsilon
 func FloatEquals(a, b float64) bool {
